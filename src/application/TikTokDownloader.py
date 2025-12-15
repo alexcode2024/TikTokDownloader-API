@@ -111,9 +111,11 @@ class TikTokDownloader:
         self.__function_menu = (
             (_("从剪贴板读取 Cookie (抖音)"), self.write_cookie),
             (_("从浏览器读取 Cookie (抖音)"), self.browser_cookie),
+            (_("手动输入 Cookie (抖音)"), self.write_cookie_input),
             # (_("扫码登录获取 Cookie (抖音)"), self.auto_cookie),
             (_("从剪贴板读取 Cookie (TikTok)"), self.write_cookie_tiktok),
             (_("从浏览器读取 Cookie (TikTok)"), self.browser_cookie_tiktok),
+            (_("手动输入 Cookie (TikTok)"), self.write_cookie_tiktok_input),
             (_("终端交互模式"), self.complete),
             (_("后台监听模式"), self.monitor),
             (_("Web API 模式"), self.server),
@@ -344,6 +346,16 @@ class TikTokDownloader:
         if self.cookie.run(tiktok):
             await self.check_settings()
 
+    async def write_cookie_input(self):
+        """手动输入抖音 Cookie"""
+        if self.cookie.run_from_input(False):
+            await self.check_settings()
+
+    async def write_cookie_tiktok_input(self):
+        """手动输入 TikTok Cookie"""
+        if self.cookie.run_from_input(True):
+            await self.check_settings()
+
     # async def auto_cookie(self):
     #     self.console.error(
     #         _(
@@ -413,6 +425,18 @@ class TikTokDownloader:
         )
         if await self.disclaimer():
             await self.main_menu(safe_pop(self.run_command))
+
+    async def run_api_mode(self):
+        """直接启动 API 模式，跳过菜单选择"""
+        self.project_info()
+        self.check_config()
+        await self.check_settings(
+            False,
+        )
+        # API 模式也需要确认免责声明
+        if await self.disclaimer():
+            # 直接启动 API 服务器
+            await self.server()
 
     def periodic_update_params(self):
         async def inner():

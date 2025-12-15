@@ -110,8 +110,14 @@ class DetailTikTokExtractor:
             self.__clean_description(Extractor.safe_extract(data, "title"))
             or item["id"]
         )
-        item["create_time"] = self.__format_date(
-            Extractor.safe_extract(data, "create_time")
+        create_timestamp = Extractor.safe_extract(data, "create_time")
+        item["create_timestamp"] = (
+            int(create_timestamp) if isinstance(create_timestamp, (int, float)) else 0
+        )
+        item["create_time"] = (
+            self.__format_date(item["create_timestamp"])
+            if item["create_timestamp"]
+            else ""
         )
         item["type"] = _("视频")
         item["downloads"] = Extractor.safe_extract(data, "hdplay")

@@ -1,4 +1,5 @@
 from asyncio import sleep
+from os import getenv
 from random import randint
 from typing import TYPE_CHECKING
 from src.translation import _
@@ -63,5 +64,52 @@ async def suspend(count: int, console: "ColorfulConsole") -> None:
 
 
 def is_valid_token(token: str) -> bool:
-    """Web API 接口模式 和 Web UI 交互模式 token 参数验证"""
-    return True
+    """
+    Web API 接口模式 和 Web UI 交互模式 token 参数验证
+    
+    配置方式（按优先级）：
+    1. 环境变量：设置环境变量 API_TOKEN 或 DOUK_API_TOKEN
+    2. 硬编码：在下方 VALID_TOKENS 列表中添加 token
+    
+    如果 token 为 None 或空字符串，且未配置任何验证，则允许访问（默认行为）
+    如果配置了 token，则必须提供有效的 token 才能访问
+    
+    使用示例：
+    - 环境变量方式：export API_TOKEN="your-secret-token"
+    - 请求时：curl -H "token: your-secret-token" http://127.0.0.1:5555/api/endpoint
+    """
+    # 如果 token 为空，检查是否配置了验证
+    if not token:
+        # 如果未配置任何 token，允许访问（默认行为）
+        env_token = getenv("API_TOKEN") or getenv("DOUK_API_TOKEN")
+        if not env_token and not VALID_TOKENS:
+            return True
+        # 如果配置了 token 但请求未提供，拒绝访问
+        return False
+    
+    # 方式一：从环境变量读取（推荐用于生产环境）
+    env_token = getenv("API_TOKEN") or getenv("DOUK_API_TOKEN")
+    if env_token and token == env_token:
+        return True
+    
+    # 方式二：从硬编码列表验证（支持多个 token）
+    if token in VALID_TOKENS:
+        return True
+    
+    # token 验证失败
+    return False
+
+
+# ========== Token 配置区域 ==========
+# 方式一：硬编码 token（简单但不够安全，适合测试环境）
+# 可以添加多个 token，用逗号分隔
+VALID_TOKENS = [
+     "your-secret-token-1",
+     "your-secret-token-2",
+     "test-token-12345",
+]
+
+# 方式二：从环境变量读取（推荐用于生产环境）
+# 设置环境变量：export API_TOKEN="your-secret-token"
+# 或在 .env 文件中设置：API_TOKEN=your-secret-token
+# ====================================

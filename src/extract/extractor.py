@@ -314,8 +314,19 @@ class Extractor:
             )
             or item["id"]
         )
-        item["create_timestamp"] = self.safe_extract(data, "create_time")
-        item["create_time"] = self.__format_date(item["create_timestamp"])
+        create_timestamp = self.safe_extract(data, "create_time", 0)
+        # 保留原始时间戳，便于 API 返回和后续筛选
+        item["create_timestamp"] = (
+            int(create_timestamp) if isinstance(create_timestamp, (int, float)) else 0
+        )
+        if (
+            item["create_timestamp"]
+            and isinstance(item["create_timestamp"], (int, float))
+            and item["create_timestamp"] > 0
+        ):
+            item["create_time"] = self.__format_date(item["create_timestamp"])
+        else:
+            item["create_time"] = ""
         self.__extract_text_extra(item, data)
         self.__classifying_detail(item, data)
 
@@ -328,11 +339,22 @@ class Extractor:
         item["desc"] = (
             self.__clean_description(self.__extract_description(data)) or item["id"]
         )
-        item["create_timestamp"] = self.safe_extract(
+        create_timestamp = self.safe_extract(
             data,
             "createTime",
+            0,
         )
-        item["create_time"] = self.__format_date(item["create_timestamp"])
+        item["create_timestamp"] = (
+            int(create_timestamp) if isinstance(create_timestamp, (int, float)) else 0
+        )
+        if (
+            item["create_timestamp"]
+            and isinstance(item["create_timestamp"], (int, float))
+            and item["create_timestamp"] > 0
+        ):
+            item["create_time"] = self.__format_date(item["create_timestamp"])
+        else:
+            item["create_time"] = ""
         self.__extract_text_extra_tiktok(item, data)
         self.__classifying_detail_tiktok(item, data)
 

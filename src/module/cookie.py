@@ -42,6 +42,39 @@ class Cookie:
         self.console.warning(_("当前剪贴板的内容不是有效的 Cookie 内容！"))
         return False
 
+    def run_from_input(
+        self,
+        tiktok=False,
+    ) -> bool:
+        """从键盘输入提取 Cookie 并写入配置文件"""
+        self.console.print(
+            _("Cookie 获取教程：")
+            + "https://github.com/JoeanAmier/TikTokDownloader/blob/master/docs/Cookie%E8%8E%B7%E5%8F%96%E6"
+            "%95%99%E7%A8%8B.md"
+        )
+        self.console.print(
+            _("请粘贴 Cookie 内容（格式：key1=value1; key2=value2; ...）")
+        )
+        cookie = self.console.input(
+            _("请输入 {platform} Cookie（直接回车取消）：").format(
+                platform=self.PLATFORM_NAME[tiktok]
+            )
+        ).strip()
+        
+        if not cookie:
+            self.console.warning(_("已取消操作！"))
+            return False
+        
+        if self.validate_cookie_minimal(cookie):
+            self.extract(
+                cookie,
+                key=self.PLATFORM_KEY[tiktok],
+                platform=self.PLATFORM_NAME[tiktok],
+            )
+            return True
+        self.console.warning(_("输入的 Cookie 内容格式无效！请检查格式是否正确。"))
+        return False
+
     def extract(
         self,
         cookie: str,

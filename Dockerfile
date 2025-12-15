@@ -36,6 +36,8 @@ COPY locale /app/locale
 COPY static /app/static
 COPY license /app/license
 COPY main.py /app/main.py
+COPY docker-init-cookie.py /app/docker-init-cookie.py
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
 # 暴露端口
 EXPOSE 5555
@@ -43,5 +45,9 @@ EXPOSE 5555
 # 创建挂载点
 VOLUME /app/Volume
 
+# 设置启动脚本权限
+RUN chmod +x /app/docker-entrypoint.sh
+
 # 设置容器启动命令
-CMD ["python", "main.py"]
+# 默认启动 API 模式，可以通过 docker run 覆盖此命令
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
