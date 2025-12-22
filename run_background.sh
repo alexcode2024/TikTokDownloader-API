@@ -66,8 +66,8 @@ start_service() {
         echo "   Log: $LOG_FILE"
         echo "   Error log: $ERROR_LOG"
         if [ "$mode" == "api" ]; then
-            echo "   API URL: http://127.0.0.1:5555"
-            echo "   API Docs: http://127.0.0.1:5555/docs"
+            echo "   API URL: http://0.0.0.0:5555"
+            echo "   API Docs: http://0.0.0.0:5555/docs"
         fi
     else
         echo "[ERROR] Service failed to start, please check error log: $ERROR_LOG"
